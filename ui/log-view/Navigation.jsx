@@ -20,7 +20,7 @@ export default class Navigation extends React.PureComponent {
           </span>
           {jobExists
             ? (
-              <span className={`result-status ${resultStatusShading} pt-2 pl-2 pr-2`}>
+              <span className={`lightgray ${resultStatusShading} pt-2 pl-2 pr-2`}>
                 <strong>Result: </strong>
                 {result}
               </span>

@@ -6,10 +6,6 @@
     top: inherit;
 }
 
-.result-status {
-    color: lightgrey;
-}
-
 .error-lines {
     flex: 1;
     overflow-y: auto;
