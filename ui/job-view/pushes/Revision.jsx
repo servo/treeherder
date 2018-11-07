@@ -48,8 +48,8 @@ export class Revision extends React.PureComponent {
     const { name, email } = parseAuthor(revision.author);
     const commitRevision = revision.revision;
 
-    return (<li className="clearfix">
-      <span className="revision" data-tags={this.tags}>
+    return (<li>
+      <span className="revision ml-4" data-tags={this.tags}>
         <span className="revision-holder" data-job-clear-on-click>
           <a
             title={`Open revision ${commitRevision} on ${repo.url}`}

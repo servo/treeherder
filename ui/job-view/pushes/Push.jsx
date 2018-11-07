@@ -14,6 +14,7 @@ import RunnableJobModel from '../../models/runnableJob';
 import { withNotifications } from '../../shared/context/Notifications';
 import { getRevisionTitle } from '../../helpers/revision';
 import { getPercentComplete } from '../../helpers/display';
+import { Revision } from './Revision';
 
 const watchCycleStates = ['none', 'push', 'job', 'none'];
 const platformArray = Object.values(thPlatformMap);
@@ -30,6 +31,7 @@ class Push extends React.Component {
       watched: 'none',
       jobCounts: { pending: 0, running: 0, completed: 0 },
       pushGroupState: 'collapsed',
+      expanded: true,
     };
   }
 
@@ -43,6 +45,7 @@ class Push extends React.Component {
     this.sortGroupedJobs = this.sortGroupedJobs.bind(this);
     this.mapPushJobs = this.mapPushJobs.bind(this);
     this.handleApplyNewJobs = this.handleApplyNewJobs.bind(this);
+    this.togglePushExpanded = this.togglePushExpanded.bind(this);
 
     // if ``nojobs`` is on the query string, then don't load jobs.
     // this allows someone to more quickly load ranges of revisions
@@ -110,6 +113,12 @@ class Push extends React.Component {
     }
     this.setState({ selectedRunnableJobs: [...selectedRunnableJobs] });
     return selectedRunnableJobs;
+  }
+
+  togglePushExpanded() {
+    const { expanded } = this.state;
+
+    this.setState({ expanded: !expanded });
   }
 
   async fetchJobs() {
@@ -323,10 +332,11 @@ class Push extends React.Component {
       isOnlyRevision,
     } = this.props;
     const {
-      watched, runnableVisible, pushGroupState,
+      watched, runnableVisible, pushGroupState, expanded,
       platforms, jobCounts, selectedRunnableJobs,
     } = this.state;
     const { id, push_timestamp, revision, author } = push;
+    const tipRevision = push.revisions[0];
 
     if (isOnlyRevision) {
       this.setSingleRevisionWindowTitle();
@@ -350,32 +360,46 @@ class Push extends React.Component {
           hideRunnableJobs={this.hideRunnableJobs}
           cycleWatchState={() => this.cycleWatchState()}
           expandAllPushGroups={this.expandAllPushGroups}
+          togglePushExpanded={this.togglePushExpanded}
+          expanded={expanded}
           getAllShownJobs={getAllShownJobs}
           selectedRunnableJobs={selectedRunnableJobs}
           notificationSupported={notificationSupported}
         />
-        <div className="push-body-divider" />
-        <div className="row push clearfix">
-          {currentRepo &&
-            <RevisionList
-              push={push}
-              repo={currentRepo}
-            />
-          }
-          <span className="job-list job-list-pad col-7" data-job-clear-on-click>
-            <PushJobs
-              push={push}
-              platforms={platforms}
-              repoName={repoName}
-              filterModel={filterModel}
-              pushGroupState={pushGroupState}
-              toggleSelectedRunnableJob={this.toggleSelectedRunnableJob}
-              runnableVisible={runnableVisible}
-              duplicateJobsVisible={duplicateJobsVisible}
-              groupCountsExpanded={groupCountsExpanded}
-            />
+        <div className="push-body-divider ml-4" />
+        {expanded ? (
+          <div className="row">
+            {currentRepo &&
+              <RevisionList
+                push={push}
+                repo={currentRepo}
+              />
+            }
+            <span className="job-list job-list-pad col-7" data-job-clear-on-click>
+              <PushJobs
+                push={push}
+                platforms={platforms}
+                repoName={repoName}
+                filterModel={filterModel}
+                pushGroupState={pushGroupState}
+                toggleSelectedRunnableJob={this.toggleSelectedRunnableJob}
+                runnableVisible={runnableVisible}
+                duplicateJobsVisible={duplicateJobsVisible}
+                groupCountsExpanded={groupCountsExpanded}
+              />
+            </span>
+          </div>
+        ) : (
+          <span className="row revision-list col-12" data-job-clear-on-click>
+            <ul className="list-unstyled">
+              <Revision
+                revision={tipRevision}
+                repo={currentRepo}
+                key={tipRevision.revision}
+              />
+            </ul>
           </span>
-        </div>
+        )}
       </div>
     );
   }

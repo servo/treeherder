@@ -144,8 +144,8 @@ class PushHeader extends React.PureComponent {
   }
 
   render() {
-    const { repoName, isLoggedIn, pushId, jobCounts, author,
-            revision, runnableVisible, watchState,
+    const { repoName, isLoggedIn, pushId, jobCounts, author, expanded,
+            revision, runnableVisible, watchState, togglePushExpanded,
             showRunnableJobs, hideRunnableJobs, cycleWatchState,
             notificationSupported, selectedRunnableJobs } = this.props;
     const cancelJobsTitle = isLoggedIn ?
@@ -163,9 +163,14 @@ class PushHeader extends React.PureComponent {
 
     return (
       <div className="push-header">
-        <div className="push-bar" data-job-clear-on-click>
+        <div className="push-bar d-flex ml-4 border-top border-dark" data-job-clear-on-click>
           <span className="push-left" data-job-clear-on-click>
             <span className="push-title-left">
+              <span
+                onClick={togglePushExpanded}
+                className={`fa ${expanded ? 'fa-minus-square-o' : 'fa-plus-square-o'} mr-2 mt-2 text-muted pointable`}
+                title={`${expanded ? 'Collapse' : 'Expand'} push data`}
+              />
               <span>
                 <a
                   href={revisionPushFilterUrl}
@@ -261,6 +266,8 @@ PushHeader.propTypes = {
   getAllShownJobs: PropTypes.func.isRequired,
   getGeckoDecisionTaskId: PropTypes.func.isRequired,
   selectedRunnableJobs: PropTypes.array.isRequired,
+  togglePushExpanded: PropTypes.func.isRequired,
+  expanded: PropTypes.bool.isRequired,
   notify: PropTypes.func.isRequired,
   jobCounts: PropTypes.object.isRequired,
   watchState: PropTypes.string,
