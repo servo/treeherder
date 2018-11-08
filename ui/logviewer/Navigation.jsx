@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+
 import LogoMenu from '../shared/LogoMenu';
 
 // Get the css class for the result, step buttons and other general use

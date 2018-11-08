@@ -13,7 +13,7 @@ module.exports = {
         title: 'Treeherder',
       },
       logviewer: {
-        entry: 'log-view/index.jsx',
+        entry: 'logviewer/index.jsx',
         favicon: 'ui/img/logviewerIcon.png',
         title: 'Treeherder Logviewer',
       },

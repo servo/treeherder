@@ -1,4 +1,5 @@
 import React from 'react';
+import { hot } from 'react-hot-loader';
 import { LazyLog } from 'react-lazylog';
 import isEqual from 'lodash/isEqual';
 
@@ -36,7 +37,7 @@ const errorLinesCss = function errorLinesCss(errors) {
 };
 
 
-export default class App extends React.PureComponent {
+class App extends React.PureComponent {
   constructor(props) {
     super(props);
     const queryString = getAllUrlParams();
@@ -48,7 +49,7 @@ export default class App extends React.PureComponent {
       jobError: '',
       revision: null,
       errors: [],
-      highlight: null,
+      highlight: getUrlLineNumber(),
       repoName: queryString.get('repo'),
       jobId: queryString.get('job_id'),
     };
@@ -104,15 +105,21 @@ export default class App extends React.PureComponent {
       const highlight = urlLN || firstErrorLineNumber;
 
       errorLinesCss(errors);
-      this.setState({ highlight, errors });
+      this.setState({ errors });
+      this.setSelectedLine(highlight, true);
     });
   }
 
   onHighlight(range) {
     const { highlight } = this.state;
     const { _start, _end, size } = range;
-    const newHighlight = size === 1 ? [_start] : [_start, _end - 1];
+    let newHighlight = null;
 
+    if (size === 1) {
+      newHighlight = [_start];
+    } else if (size > 1) {
+      newHighlight = [_start, _end - 1];
+    }
     if (!isEqual(newHighlight, highlight)) {
       this.setSelectedLine(newHighlight);
     }
@@ -121,14 +128,13 @@ export default class App extends React.PureComponent {
   setSelectedLine(highlight, scrollToTop) {
     this.setState({ highlight }, () => {
       this.updateQuery({ highlight });
-      if (scrollToTop) {
+      if (highlight && scrollToTop) {
         this.scrollHighlightToTop(highlight);
       }
     });
   }
 
-  scrollHighlightToTop() {
-    const { highlight } = this.state;
+  scrollHighlightToTop(highlight) {
     const lineAtTop = highlight && highlight[0] > 7 ? highlight[0] - 7 : 0;
 
     this.scrollToLine(`a[id="${lineAtTop}"]`, 100);
@@ -149,7 +155,9 @@ export default class App extends React.PureComponent {
   updateQuery() {
     const { highlight } = this.state;
 
-    if (highlight.length > 1) {
+    if (!highlight) {
+      setUrlParam('lineNumber', null);
+    } else if (highlight.length > 1) {
       setUrlParam('lineNumber', `${highlight[0]}-${highlight[1]}`);
     } else {
       setUrlParam('lineNumber', highlight[0]);
@@ -201,7 +209,7 @@ export default class App extends React.PureComponent {
                 highlight={highlight}
                 selectableLines
                 onHighlight={this.onHighlight}
-                onLoad={this.scrollHighlightToTop}
+                onLoad={() => this.scrollHighlightToTop(highlight)}
                 highlightLineClassName="yellow-highlight"
                 rowHeight={13}
               />
@@ -212,3 +220,5 @@ export default class App extends React.PureComponent {
     );
   }
 }
+
+export default hot(module)(App);
